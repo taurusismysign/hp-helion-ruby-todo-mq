@@ -1,0 +1,4 @@
+REDIS_URL: "redis://127.0.0.1:6379/0"
+CATEGORY_LOOKUP_SERVICE: "http://localhost:3001/categories.json"
+RABBITMQ_URL: "amqp://guest:guest@localhost:5672/%2f"
+

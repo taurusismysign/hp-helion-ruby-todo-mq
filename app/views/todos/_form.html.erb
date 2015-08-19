@@ -1,0 +1,38 @@
+<%= form_for(@todo) do |f| %>
+  <% if @todo.errors.any? %>
+    <div id="error_explanation">
+      <h2><%= pluralize(@todo.errors.count, "error") %> prohibited this todo from being saved:</h2>
+
+      <ul>
+      <% @todo.errors.full_messages.each do |message| %>
+        <li><%= message %></li>
+      <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div class="field">
+    <%= f.label :description %><br>
+    <%= f.text_field :description %>
+  </div>
+  <div class="field">
+    <%= f.label :is_completed %><br>
+    <%= f.check_box :is_completed %>
+  </div>
+  <div class="field">
+    <%= f.label :target_date %><br>
+    <%= f.datetime_select :target_date %>
+  </div>
+  <div class="field">
+    <%= f.label :category %><br>
+    <%= f.select("category", @categories.each.collect {|p| [ p["category_name"], p["category_name"] ] }, {include_blank: true}) %>
+
+  </div>
+    <div class="field">
+      <label>Notify Email (optional)</label><br>
+      <%= f.text_field :notify_email %>
+    </div>
+  <div class="actions">
+    <%= f.submit %>
+  </div>
+<% end %>

@@ -1,0 +1,43 @@
+---
+applications:
+- name: hp-helion-ruby-todo-mq-main
+  memory: 512M
+  instances: 1
+  command: bundle exec rails s -p $PORT
+  services:
+    ${name}-db: mysql
+    ${name}-redis: redis
+    hp-helion-ruby-todo-mq-main-mq: rabbitmq3
+  env:
+    # TODO: move this later to service discovery like Zookeeper, Doozer and Etcd,
+    # Airbnb’s SmartStack, Netflix’s Eureka, Bitly’s NSQ, Serf, Spotify and DNS or SkyDNS.
+    # Read more here: http://jasonwilder.com/blog/2014/02/04/service-discovery-in-the-cloud/
+    CATEGORY_LOOKUP_SERVICE: "http://hp-helion-ruby-todo-mq-catalog.pit.davidaiken.com/categories.json"
+  stackato:
+    hooks:
+      pre-running:
+      - export DATABASE_URL=`echo $DATABASE_URL | sed 's/mysql/mysql2/'`
+      - rake db:migrate
+- name: hp-helion-ruby-todo-mq-catalog
+  memory: 512M
+  instances: 1
+  command: bundle exec rails s -p $PORT
+  services:
+    ${name}-db: mysql
+  stackato:
+    hooks:
+      pre-running:
+      - export DATABASE_URL=`echo $DATABASE_URL | sed 's/mysql/mysql2/'`
+      - rake db:migrate
+- name: hp-helion-ruby-todo-mq
+  no-route: true
+  memory: 512M
+  instances: 1
+  command: 'bundle exec clockwork scripts/mq_process.rb'
+  services:
+    hp-helion-ruby-todo-mq-main-mq: rabbitmq3
+    hp-helion-ruby-todo-mq-main-db: mysql
+  stackato:
+    hooks:
+      pre-running:
+      - export DATABASE_URL=`echo $DATABASE_URL | sed 's/mysql/mysql2/'`
